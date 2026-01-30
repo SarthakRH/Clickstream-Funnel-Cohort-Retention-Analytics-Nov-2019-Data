@@ -16,3 +16,23 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
+# DuckDB binaries + DB files
+duckdb.exe
+*.duckdb
+*.db
+*.wal
+*.tmp
+
+# Data folders
+data_raw/
+data_processed/
+
+# Python env
+venv/
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+
+# IDE
+.vscode/
