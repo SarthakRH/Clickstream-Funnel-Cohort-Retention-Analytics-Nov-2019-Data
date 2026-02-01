@@ -1,4 +1,4 @@
-# Validation — Day 2 (Session Funnel)
+# Validation — (Session Funnel)
 
 ## Table existence
 - fct_session_funnel sessions: 13,776,641
