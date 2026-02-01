@@ -271,28 +271,28 @@ product-analytics-funnel-cohorts/
 ├── docs/
 │   ├── overview.md
 │   ├── data_dictionary.md
-│   ├── metrics_definition.md
+│   ├── metrics_spec.md
+|   ├── metrics_definationc.md
 │   ├── star_schema.md
-│   ├── qa_checks.md
+│   ├── README.md
+│   ├── data_profile.md
+│   ├── validation_start_schema.md
+│   ├── validation_Session_Funnel.md
 │   ├── insights.md
-│   ├── diagrams/
 │   └── screenshots/
 ├── sql/
-│   ├── 00_setup.sql
-│   ├── 01_ingest_raw.sql
-│   ├── 02_clean_transform.sql
-│   ├── 03_star_schema_build.sql
-│   ├── 04_funnel_metrics.sql
-│   ├── 05_retention_cohorts.sql
-│   ├── 06_aggregations.sql
-│   ├── 07_exports_to_parquet.sql
-│   └── validation_checks.sql
+│   ├── 00_run_all.sql
+│   ├── 01_load_raw.sql
+│   ├── 02_star_schema_build.sql
+│   ├── 03_funnel_metrics.sql
+│   ├── 04_cohorts_retention.sql
+│   ├── 05_exports_to_parquet.sql
+│   ├── 06_driver_analysis.sql
+│   └── 07_validation_checks.sql
 ├── powerbi/
 │   ├── product_analytics_dashboard.pbix
 │   ├── README.md
 │   └── dax/
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── exports/
+├── requirements.txt
 └── .gitignore
+
