@@ -1,4 +1,4 @@
-# Validation — Day 1 Star Schema
+# Validation — Star Schema
 
 ## Tables created
 - dim_date
