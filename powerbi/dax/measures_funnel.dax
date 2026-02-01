@@ -1,0 +1,67 @@
+// =====================================================
+// Funnel Measures (overall + category-level)
+// Home table suggestion: fct_session_funnel or a dedicated Measures table
+// =====================================================
+
+// -------------------------
+// Overall funnel counts (session-based)
+// -------------------------
+Total Sessions :=
+SUM ( fct_session_funnel[sessions] )
+
+View Sessions :=
+SUM ( fct_session_funnel[view_sessions] )
+
+Cart Sessions :=
+SUM ( fct_session_funnel[cart_sessions] )
+
+Purchase Sessions :=
+SUM ( fct_session_funnel[purchase_sessions] )
+
+// -------------------------
+// Overall funnel conversion rates
+// -------------------------
+View → Cart CVR :=
+DIVIDE ( [Cart Sessions], [View Sessions] )
+
+Cart → Purchase CVR :=
+DIVIDE ( [Purchase Sessions], [Cart Sessions] )
+
+View → Purchase CVR :=
+DIVIDE ( [Purchase Sessions], [View Sessions] )
+
+// -------------------------
+// Category-level funnel counts (used on Page 3 table + scatter)
+// -------------------------
+Category Sessions :=
+SUM ( agg_category_funnel[sessions] )
+
+Category View Sessions :=
+SUM ( agg_category_funnel[view_sessions] )
+
+Category Cart Sessions :=
+SUM ( agg_category_funnel[cart_sessions] )
+
+Category Purchase Sessions :=
+SUM ( agg_category_funnel[purchase_sessions] )
+
+Category Revenue (Dedup) :=
+SUM ( agg_category_funnel[revenue_dedup] )
+
+// -------------------------
+// Category-level conversion rates (used on scatter/table)
+// -------------------------
+Category View → Cart CVR :=
+DIVIDE ( [Category Cart Sessions], [Category View Sessions] )
+
+Category Cart → Purchase CVR :=
+DIVIDE ( [Category Purchase Sessions], [Category Cart Sessions] )
+
+Category View → Purchase CVR :=
+DIVIDE ( [Category Purchase Sessions], [Category View Sessions] )
+
+// Optional: "safe" display measure to avoid crazy axis scaling if no views
+Category View → Purchase CVR (Safe) :=
+VAR v = [Category View Sessions]
+RETURN
+IF ( v = 0, BLANK (), [Category View → Purchase CVR] )

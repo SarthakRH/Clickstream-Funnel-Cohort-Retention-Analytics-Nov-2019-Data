@@ -1,0 +1,74 @@
+// =====================================================
+// Retention + Cohorts Measures
+// Home table suggestion: cohort_retention_summary (or a dedicated Measures table)
+// =====================================================
+
+// -------------------------
+// Purchaser base
+// -------------------------
+Total Purchasers :=
+SUM ( cohort_retention_summary[cohort_size] )
+
+Cohort Size :=
+SUM ( cohort_retention_summary[cohort_size] )
+
+// -------------------------
+// D1 / D7 (weighted across cohorts)
+// Weighted meaning: sum(retained) / sum(cohort_size)
+// -------------------------
+D1 Retained Users :=
+SUM ( cohort_retention_summary[retained_d1_users] )
+
+D7 Retained Users :=
+SUM ( cohort_retention_summary[retained_d7_users] )
+
+D1 Retention (Weighted) :=
+DIVIDE ( [D1 Retained Users], [Total Purchasers] )
+
+D7 Retention (Weighted) :=
+DIVIDE ( [D7 Retained Users], [Total Purchasers] )
+
+// -------------------------
+// Cohort heatmap cell value
+// (row = cohort_date, col = days_since)
+// If cohort_retention_curve is already aggregated to one row per cohort_date x days_since,
+// MAX(retention_rate) is safe for a single cell.
+// -------------------------
+Retention Rate :=
+MAX ( cohort_retention_curve[retention_rate] )
+
+Active Users :=
+SUM ( cohort_retention_curve[active_users] )
+
+// -------------------------
+// Weighted retention curve by Day (across all cohorts)
+// This is what you used for the line chart: X = Days[Day], Y = Retention (Weighted)
+// Works even if cohort_retention_curve does NOT store cohort_size, because we pull cohort_size
+// from cohort_retention_summary via cohort_date.
+// -------------------------
+Retention (Weighted) :=
+VAR d =
+    SELECTEDVALUE ( Days[Day] )
+VAR numer =
+    CALCULATE (
+        SUM ( cohort_retention_curve[active_users] ),
+        cohort_retention_curve[days_since] = d
+    )
+VAR denom =
+    CALCULATE (
+        SUM ( cohort_retention_summary[cohort_size] ),
+        // Keep only cohort_dates that exist in the curve at this days_since
+        TREATAS (
+            VALUES ( cohort_retention_curve[cohort_date] ),
+            cohort_retention_summary[cohort_date]
+        ),
+        cohort_retention_curve[days_since] = d
+    )
+RETURN
+    DIVIDE ( numer, denom )
+
+// Optional: a version that returns BLANK for Day 0 so it disappears without needing a filter
+Retention (Weighted, No Day 0) :=
+VAR d = SELECTEDVALUE ( Days[Day] )
+RETURN
+IF ( d = 0, BLANK (), [Retention (Weighted)] )

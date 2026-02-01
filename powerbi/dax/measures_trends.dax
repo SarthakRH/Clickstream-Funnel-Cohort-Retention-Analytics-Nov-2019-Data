@@ -1,0 +1,91 @@
+// =====================================================
+// Trends & Diagnostics Measures (Page 4)
+// Home table suggestion: daily_event_counts or a dedicated Measures table
+// =====================================================
+
+// -------------------------
+// Base event counts
+// -------------------------
+Total Events :=
+SUM ( daily_event_counts[events] )
+
+View Events :=
+CALCULATE ( [Total Events], daily_event_counts[event_type] = "view" )
+
+Cart Events :=
+CALCULATE ( [Total Events], daily_event_counts[event_type] = "cart" )
+
+Purchase Events :=
+CALCULATE ( [Total Events], daily_event_counts[event_type] = "purchase" )
+
+// -------------------------
+// 7-day moving average (uses current filter context, so it works inside small multiples too)
+// -------------------------
+Events 7D MA :=
+VAR maxDate = MAX ( daily_event_counts[event_date] )
+RETURN
+AVERAGEX (
+    DATESINPERIOD ( daily_event_counts[event_date], maxDate, -7, DAY ),
+    [Total Events]
+)
+
+// -------------------------
+// Daily conversion "proxy" using events counts (not sessions)
+// If you have daily session funnel by date, switch denominators to sessions instead.
+// -------------------------
+View → Cart CVR (Daily) :=
+DIVIDE ( [Cart Events], [View Events] )
+
+Cart → Purchase CVR (Daily) :=
+DIVIDE ( [Purchase Events], [Cart Events] )
+
+View → Purchase CVR (Daily) :=
+DIVIDE ( [Purchase Events], [View Events] )
+
+// -------------------------
+// Peak view day + spike %
+// Spike % compares peak day view events vs avg view events in previous 7 days.
+// Spike% = (Peak / Baseline - 1) * 100
+// -------------------------
+Peak View Events :=
+VAR t =
+    ADDCOLUMNS (
+        SUMMARIZE ( daily_event_counts, daily_event_counts[event_date] ),
+        "ViewEvents", CALCULATE ( SUM ( daily_event_counts[events] ), daily_event_counts[event_type] = "view" )
+    )
+RETURN
+MAXX ( t, [ViewEvents] )
+
+Peak View Date :=
+VAR t =
+    ADDCOLUMNS (
+        SUMMARIZE ( daily_event_counts, daily_event_counts[event_date] ),
+        "ViewEvents", CALCULATE ( SUM ( daily_event_counts[events] ), daily_event_counts[event_type] = "view" )
+    )
+VAR peakVal = MAXX ( t, [ViewEvents] )
+RETURN
+MAXX ( FILTER ( t, [ViewEvents] = peakVal ), daily_event_counts[event_date] )
+
+Peak View Baseline (Prev 7D Avg) :=
+VAR d = [Peak View Date]
+VAR prev7 =
+    FILTER (
+        ALL ( daily_event_counts[event_date] ),
+        daily_event_counts[event_date] < d
+            && daily_event_counts[event_date] >= d - 7
+    )
+RETURN
+AVERAGEX (
+    prev7,
+    CALCULATE ( SUM ( daily_event_counts[events] ), daily_event_counts[event_type] = "view" )
+)
+
+Peak View Spike % :=
+VAR peak = [Peak View Events]
+VAR base = [Peak View Baseline (Prev 7D Avg)]
+RETURN
+IF (
+    ISBLANK ( base ) || base = 0,
+    BLANK (),
+    ( DIVIDE ( peak, base ) - 1 ) * 100
+)
