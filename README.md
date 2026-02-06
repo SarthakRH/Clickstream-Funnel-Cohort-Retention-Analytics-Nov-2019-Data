@@ -1,4 +1,4 @@
-# Product Analytics Funnel + Retention Cohorts Dashboard (Nov 2019)
+# Clickstream Funnel & Cohort Retention Analytics (Nov 2019)
 
 A full end-to-end product analytics project built on clickstream e-commerce events for **Nov 2019**.  
 The project covers **data modeling (star schema)**, **funnel conversion**, **cohort retention analysis**, and **revenue drivers**, delivered as a multi-page **Power BI dashboard** powered by **DuckDB → Parquet**.
@@ -295,4 +295,5 @@ product-analytics-funnel-cohorts/
 │   └── dax/
 ├── requirements.txt
 └── .gitignore
+
 
